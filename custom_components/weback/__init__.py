@@ -29,16 +29,18 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-WEBACK_DEVICES = "weback_devices"
+WEBACK_DEVICES_VACUUM = "weback_devices_vacuum"
+WEBACK_DEVICES_THERMOSTAT = "weback_devices_thermostat"
 
-SUPPORTED_DEVICES = ["_CLEAN_ROBOT"]
+SUPPORTED_DEVICES = ["_CLEAN_ROBOT", "__THERMOSTAT"]
 
 
 def setup(hass, config):
     """Set up the Weback component."""
     _LOGGER.debug("Creating new Weback component")
 
-    hass.data[WEBACK_DEVICES] = []
+    hass.data[WEBACK_DEVICES_VACUUM] = []
+    hass.data[WEBACK_DEVICES_THERMOSTAT] = []
 
     weback_api = WebackApi(
         config[DOMAIN].get(CONF_USERNAME), config[DOMAIN].get(CONF_PASSWORD),
@@ -60,11 +62,20 @@ def setup(hass, config):
             _LOGGER.info("Device not supported by this integration")
             continue
 
-        vacuum = CleanRobot(device["Thing_Name"], weback_api, None, description)
-        hass.data[WEBACK_DEVICES].append(vacuum)
+        if description.get("thingTypeName") == '_CLEAN_ROBOT':
+            vacuum = CleanRobot(device["Thing_Name"], weback_api, None, description)
+            hass.data[WEBACK_DEVICES_VACUUM].append(vacuum)
+        else:
+            thermostat = Thermostat(device["Thing_Name"], weback_api, None, description)
+            hass.data[WEBACK_DEVICES_THERMOSTAT].append(thermostat)
 
-    if hass.data[WEBACK_DEVICES]:
-        _LOGGER.debug("Starting vacuum components")
+
+    if hass.data[WEBACK_DEVICES_VACUUM]:
+        _LOGGER.debug("Starting vacuum and thermostat components")
+        discovery.load_platform(hass, "vacuum", DOMAIN, {}, config)
+
+    if hass.data[WEBACK_DEVICES_THERMOSTAT]:
+        _LOGGER.debug("Starting vacuum and thermostat components")
         discovery.load_platform(hass, "vacuum", DOMAIN, {}, config)
 
     return True

@@ -1,0 +1,3 @@
+[submodule "custom_components/weback/weback-unofficial"]
+	path = custom_components/weback/weback-unofficial
+	url = https://github.com/opravdin/weback-unofficial.git

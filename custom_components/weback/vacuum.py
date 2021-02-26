@@ -20,7 +20,7 @@ from homeassistant.components.vacuum import (
 from homeassistant.helpers.icon import icon_for_battery_level
 from homeassistant.const import CONF_SCAN_INTERVAL
 
-from . import WEBACK_DEVICES, DOMAIN, SCAN_INTERVAL
+from . import WEBACK_DEVICES_VACUUM, DOMAIN, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ ATTR_COMPONENT_PREFIX = "component_"
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the Weback vacuums."""
     vacuums = []
-    for device in hass.data[WEBACK_DEVICES]:
+    for device in hass.data[WEBACK_DEVICES_VACUUM]:
         vacuums.append(WebackVacuum(device, SCAN_INTERVAL))
     _LOGGER.debug("Adding Weback Vacuums to Home Assistant: %s", vacuums)
     add_entities(vacuums, True)
